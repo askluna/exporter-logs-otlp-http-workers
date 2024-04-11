@@ -1,6 +1,6 @@
 {
 	"name": "@askluna/exporter-logs-otlp-http-workers",
-	"version": "0.50.2",
+	"version": "0.50.3",
 	"publishConfig": {
 		"access": "public"
 	},

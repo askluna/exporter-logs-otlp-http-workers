@@ -151,6 +151,19 @@ export const otelLoggerManager = new OtelHttpLoggerManager();
 
 ```
 
+It is then used like this
+
+```typescript
+const appLogging = (entry: LogEntry, severityText: SeverityLevel, ...logArgs: any[]): void => {
+	const HEADER = 'askluna';
+	const log = makeLogEntry(entry, severityText, logArgs);
+	otelLoggerManager.emitToLoggers(log);
+};
+
+```
+
+You can probably also override `console.log`
+
 ### Notes
 
 - `createOtelLoggerProvider` usess `SimpleLogRecordProcessor` to create a log provider
@@ -165,7 +178,7 @@ This is a shim that works to make **@opentelemetry/exporter-logs-otlp-http compa
 
 - For more information on OpenTelemetry, visit: <https://opentelemetry.io/>
 - For more about OpenTelemetry JavaScript: <https://github.com/open-telemetry/opentelemetry-js>
-- For help or feedback on this project, join us in [GitHub Discussions](https://github.com/open-telemetry/opentelemetry-js/discussions)
+- For help or feedback on this otel, join in [GitHub Discussions](https://github.com/open-telemetry/opentelemetry-js/discussions)
 
 ## License
 
