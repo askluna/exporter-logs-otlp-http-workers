@@ -1,6 +1,6 @@
 {
 	"name": "@askluna/exporter-logs-otlp-http-workers",
-	"version": "0.50.1",
+	"version": "0.50.2",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -44,8 +44,8 @@
 	"files": ["dist/**/*", "LICENSE", "README.md"],
 	"sideEffects": false,
 	"devDependencies": {
-		"@askluna/configs": "workspace:*",
-		"@askluna/eslint-config": "workspace:*",
+		"@askluna/configs": "1.0.0",
+		"@askluna/eslint-config": "1.0.0",
 		"@types/node": "^20.12.7",
 		"tsup": "^8.0.2",
 		"typescript": "5.4.5",
