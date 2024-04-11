@@ -1,8 +1,6 @@
 # OpenTelemetry Collector Logs Exporter for web and node with HTTP
 
-**Note: This is an experimental package under active development. New releases may include breaking changes.**
-
-This module provides a logs-exporter for OTLP (http/json).  
+This module provides a logs-exporter for OTLP (http/json).   This adds otel logs support for workers.  
 
 ## Installation
 
