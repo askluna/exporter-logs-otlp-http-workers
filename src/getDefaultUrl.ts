@@ -15,10 +15,10 @@ export function getDefaultUrl(config: OTLPExporterConfigBase): string {
 		typeof config.url === 'string'
 			? config.url
 			: getEnv().OTEL_EXPORTER_OTLP_LOGS_ENDPOINT.length > 0
-			  ? appendRootPathToUrlIfNeeded(getEnv().OTEL_EXPORTER_OTLP_LOGS_ENDPOINT)
-			  : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
-				  ? appendResourcePathToUrl(getEnv().OTEL_EXPORTER_OTLP_ENDPOINT, DEFAULT_COLLECTOR_RESOURCE_PATH)
-				  : null;
+				? appendRootPathToUrlIfNeeded(getEnv().OTEL_EXPORTER_OTLP_LOGS_ENDPOINT)
+				: getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
+					? appendResourcePathToUrl(getEnv().OTEL_EXPORTER_OTLP_ENDPOINT, DEFAULT_COLLECTOR_RESOURCE_PATH)
+					: null;
 
 	if (!url) {
 		diag.error('Failed to get default url');
