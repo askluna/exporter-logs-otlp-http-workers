@@ -2,87 +2,166 @@
 
 **Note: This is an experimental package under active development. New releases may include breaking changes.**
 
-This module provides a logs-exporter for OTLP (http/json).
+This module provides a logs-exporter for OTLP (http/json).  
 
 ## Installation
 
 ```bash
-npm install --save @askluna/exporter-logs-otlp-http-workers
+npm install -D @askluna/exporter-logs-otlp-http-workers
 ```
 
 ## Use
 
+Below is an example use case of a logmanager for a custom logger.   You can also alternatively override console.log and call your own logger.  See otel nodejs libraries (perhaps autoinstrumentation) for different implementations.  
+
+The implementation below allows for multiple loggers (aka you can log to multiple otel providers like newrelic, baselime etc at teh same time)
+
 ```typescript
+
+type OtelLoggerResult = { success: true; logger: Logger } | { success: false; error: Error };
+type OtelLoggerProviderResult = { success: true; provider: LoggerProvider } | { success: false; error: Error };
+
 /**
- * Registers an OpenTelemetry logger with the specified parameters.
- * @param params - The parameters for registering the logger.
- * @param params.otelIdentifier - The identifier for the OpenTelemetry logger.
- * @param params.apiKey - The API key for authentication.
- * @param params.endpoint - The endpoint for sending logs.
- * @param reregister - Optional. Specifies whether to re-register the logger if it already exists. Default is false.
- * @returns A promise that resolves to a Result object containing the logger if successful, or an error if unsuccessful.
+ * Manager for OpenTelemetry loggers.
  */
-export const registerOtelLogger = async (
-  params: {
-    otelIdentifier: CreateOtelLogProviderParams['otelIdentifier'];
-    auth:
-      | {
-          kind: 'api-key';
-          value: string;
-        }
-      | {
-          kind: 'dns';
-          value: string;
-        };
-    endpoint: string;
-  },
-  reregister: boolean = false
-): Promise<Logger | null> => {
-  const otelLogger: Logger | null = null;
-  // make sure fetch is in the right state when using with https://github.com/evanderkoogh/otel-cf-workers
-  // you may have to wait for the fetch proxy to be ready
+export class OtelHttpLoggerManager {
+	private registeredOtelLoggers: Map<string, OtelLoggerResult | null> = new Map();
+	private registeredOtelLoggerProviders: Map<string, OtelLoggerProviderResult | null> = new Map();
 
-  const logProvider = await createOtelLogProvider({
-    otelIdentifier: params.otelIdentifier,
-    exportOptions: {
-      url: params.endpoint,
-      headers: { [params.auth.kind]: params.auth.value },
-      compression: 'gzip' as never,
-      fetch: (input, init) => {
-        return fetch(input, init);
-      },
-    },
-  });
+	registerLoggers(params: HttpLoggersConfig, fetchHander: typeof fetch): OtelLoggerResult[] {
+		const results = params.httpExportersConfig.map((httpExporterConfig) => {
+			const param = { ...params, httpExporterConfig } satisfies SingleHttpLoggerConfig;
+			return this.registerLogger(param, fetchHander, false);
+		});
 
-  if (logProvider) {
-    otelLogger = createOtelLogger(logProvider, { name: params.otelIdentifier.name });
-    return otelLogger;
-  } else {
-    otelLogger = null;
-  }
+		return results;
+	}
 
-  return otelLogger;
-};
+	loggerId(params: SingleHttpLoggerConfig): string {
+		return `${params.httpExporterConfig.id}/${params.serviceIdentifier.name}-${params.serviceIdentifier.namespace}`;
+	}
+
+	registerLogger(
+		params: SingleHttpLoggerConfig,
+		fetchHander: typeof fetch,
+		reregister: boolean = false
+	): OtelLoggerResult {
+		const loggerConfig = params.httpExporterConfig;
+		const id = this.loggerId(params);
+
+		try {
+			const url = loggerConfig.httpOtlpEndpoint;
+
+			const exportOptions = {
+				url,
+				headers: loggerConfig.headers,
+				compression: 'gzip' as never,
+				concurrencyLimit: params.concurrencyLimit ?? 1,
+				fetchHandler: fetchHander,
+			} satisfies OTLPLogExporterWorkersConfig;
+
+			const currentLoggerResult = this.registeredOtelLoggers.get(id);
+			if (currentLoggerResult?.success && !reregister) {
+				return currentLoggerResult;
+			}
+
+			const logProvider = createOtelLoggerProvider({
+				serviceIdentifier: params.serviceIdentifier,
+				exportOptions,
+			});
+
+			if (logProvider) {
+				const logger = createOtelLogger(logProvider, { name: 'askluna' });
+				const loggerResult: OtelLoggerResult = { success: true, logger };
+				this.registeredOtelLoggerProviders.set(id, { success: true, provider: logProvider });
+				this.registeredOtelLoggers.set(id, loggerResult);
+				return loggerResult;
+			} else {
+				throw new Error('Failed to setup OpenTelemetry log provider.');
+			}
+		} catch (error) {
+			console.error(`Error registering logger ${id}: `, error);
+			const errorResult: OtelLoggerResult = {
+				success: false,
+				error: error instanceof Error ? error : new Error(String(error)),
+			};
+			this.registeredOtelLoggers.set(id, errorResult);
+			return errorResult;
+		}
+	}
+
+	emitToLoggers(log: LogRecord): void {
+		try {
+			const span = traceApi().getActiveSpan();
+			if (span && log.attributes && !log.attributes['traceId'] && !log.attributes['spanId']) {
+				log.attributes['traceId'] = span.spanContext().traceId;
+				log.attributes['spanId'] = span.spanContext().spanId;
+			}
+		} catch (cause) {
+			/** do nothing */
+		}
+
+		this.registeredOtelLoggers.forEach((result) => {
+			if (result?.success) {
+				try {
+					result.logger.emit(log as never);
+				} catch (cause) {}
+			}
+		});
+	}
+
+	async flushLoggers(): Promise<void> {
+		const promises = Array.from(this.registeredOtelLoggerProviders.entries()).map(async ([_id, result]) => {
+			if (result?.success) {
+				try {
+					await sleep(0);
+					await result.provider.forceFlush();
+					await sleep(0);
+				} catch (error) {
+					console.error('Error during logger flush', error);
+				}
+			}
+		});
+
+		await Promise.allSettled(promises);
+	}
+
+	async shutdownLoggers(): Promise<void> {
+		const promises = Array.from(this.registeredOtelLoggerProviders.entries()).map(async ([id, result]) => {
+			if (result?.success) {
+				try {
+					await result.provider.shutdown();
+					this.registeredOtelLoggerProviders.delete(id);
+					this.registeredOtelLoggers.delete(id);
+				} catch (error) {
+					console.error('Error during logger shutdown', error);
+
+					this.registeredOtelLoggerProviders.delete(id);
+					this.registeredOtelLoggers.delete(id);
+				}
+			}
+		});
+
+		await Promise.allSettled(promises);
+	}
+}
+
+/**
+ * Singleton instance of the OtelLoggerManager.
+ */
+export const otelLoggerManager = new OtelHttpLoggerManager();
+
 ```
+
+### Notes
+
+- `createOtelLoggerProvider` usess `SimpleLogRecordProcessor` to create a log provider
 
 ## Further Documentation
 
 Please see **@opentelemetry/exporter-logs-otlp-http** for futher details. [Github link](https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/exporter-logs-otlp-http/README.md?plain=1)
 
 This is a shim that works to make **@opentelemetry/exporter-logs-otlp-http compatible with**
-
-## Environment Variable Configuration
-
-In addition to settings passed to the constructor, the exporter also supports configuration via environment variables:
-
-| Environment variable             | Description                                                                                                                                                                                                                                              |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| OTEL_EXPORTER_OTLP_ENDPOINT      | The endpoint to send logs to. This will also be used for the traces exporter if `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` is not configured. By default `http://localhost:4318` will be used. `/v1/logs` will be automatically appended to configured values. |
-| OTEL_EXPORTER_OTLP_LOGS_ENDPOINT | The endpoint to send logs to. By default `https://localhost:4318/v1/logs` will be used. `v1/logs` will not be appended automatically and has to be added explicitly.                                                                                     |
-| OTEL_EXPORTER_OTLP_LOGS_TIMEOUT  | The maximum waiting time, in milliseconds, allowed to send each OTLP log batch. Default is 10000.                                                                                                                                                        |
-| OTEL_EXPORTER_OTLP_TIMEOUT       | The maximum waiting time, in milliseconds, allowed to send each OTLP trace/metric/log batch. Default is 10000.                                                                                                                                           |
-
-> Settings configured programmatically take precedence over environment variables. Per-signal environment variables take precedence over non-per-signal environment variables.
 
 ## Useful links
 

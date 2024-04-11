@@ -2,7 +2,7 @@ import { Resource } from '@opentelemetry/resources';
 import { LoggerProvider, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
-import { type OTLPLogExporterConfigworkers } from '~~/OTLPLogExporterWorkers';
+import { type OTLPLogExporterWorkersConfig } from '~~/OTLPLogExporterWorkers';
 import { OTLPLogExporterWorkers } from '~~/OTLPLogExporterWorkers';
 
 export type CreateOtelLoggerProviderParams = {
@@ -10,7 +10,7 @@ export type CreateOtelLoggerProviderParams = {
 		name: string;
 		namespace: string;
 	};
-	exportOptions: OTLPLogExporterConfigworkers;
+	exportOptions: OTLPLogExporterWorkersConfig;
 };
 
 export const createOtelLoggerProvider = (params: CreateOtelLoggerProviderParams): LoggerProvider | null => {
@@ -22,7 +22,7 @@ export const createOtelLoggerProvider = (params: CreateOtelLoggerProviderParams)
 
 		const collectorOptions = {
 			...params.exportOptions,
-		} satisfies OTLPLogExporterConfigworkers;
+		} satisfies OTLPLogExporterWorkersConfig;
 
 		const logExporter = new OTLPLogExporterWorkers(collectorOptions);
 

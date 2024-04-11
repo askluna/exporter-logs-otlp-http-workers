@@ -28,7 +28,7 @@ const DEFAULT_USER_AGENT = {
 	'User-Agent': `OTel-OTLP-Exporter-JavaScript-Http-workers`,
 };
 
-export interface OTLPLogExporterConfigworkers extends OTLPExporterNodeConfigBase {
+export interface OTLPLogExporterWorkersConfig extends OTLPExporterNodeConfigBase {
 	fetchHandler: typeof fetch;
 	errorsToConsole?: boolean;
 }
@@ -37,7 +37,7 @@ export interface OTLPLogExporterConfigworkers extends OTLPExporterNodeConfigBase
  * Collector Metric Exporter abstract base class
  */
 export class OTLPLogExporterWorkers
-	extends OTLPExporterBase<OTLPLogExporterConfigworkers, ReadableLogRecord, IExportLogsServiceRequest>
+	extends OTLPExporterBase<OTLPLogExporterWorkersConfig, ReadableLogRecord, IExportLogsServiceRequest>
 	implements LogRecordExporter
 {
 	DEFAULT_HEADERS: Record<string, string> = {};
@@ -46,7 +46,7 @@ export class OTLPLogExporterWorkers
 	fetchHandler: typeof fetch;
 	errorsToConsole: boolean;
 
-	constructor(config: OTLPLogExporterConfigworkers) {
+	constructor(config: OTLPLogExporterWorkersConfig) {
 		super({
 			timeoutMillis: getEnv().OTEL_EXPORTER_OTLP_LOGS_TIMEOUT,
 			...config,
