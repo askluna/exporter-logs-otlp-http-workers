@@ -25,10 +25,10 @@ import { type ReadableLogRecord, type LogRecordExporter } from '@opentelemetry/s
 import { getDefaultUrl } from '~~/getDefaultUrl';
 
 const DEFAULT_USER_AGENT = {
-	'User-Agent': `OTel-OTLP-Exporter-JavaScript-Http-Wintercg`,
+	'User-Agent': `OTel-OTLP-Exporter-JavaScript-Http-workers`,
 };
 
-export interface OTLPLogExporterConfigWinterCG extends OTLPExporterNodeConfigBase {
+export interface OTLPLogExporterConfigworkers extends OTLPExporterNodeConfigBase {
 	fetchHandler: typeof fetch;
 	errorsToConsole?: boolean;
 }
@@ -36,8 +36,8 @@ export interface OTLPLogExporterConfigWinterCG extends OTLPExporterNodeConfigBas
 /**
  * Collector Metric Exporter abstract base class
  */
-export class OTLPLogExporterWinterCG
-	extends OTLPExporterBase<OTLPLogExporterConfigWinterCG, ReadableLogRecord, IExportLogsServiceRequest>
+export class OTLPLogExporterWorkers
+	extends OTLPExporterBase<OTLPLogExporterConfigworkers, ReadableLogRecord, IExportLogsServiceRequest>
 	implements LogRecordExporter
 {
 	DEFAULT_HEADERS: Record<string, string> = {};
@@ -46,7 +46,7 @@ export class OTLPLogExporterWinterCG
 	fetchHandler: typeof fetch;
 	errorsToConsole: boolean;
 
-	constructor(config: OTLPLogExporterConfigWinterCG) {
+	constructor(config: OTLPLogExporterConfigworkers) {
 		super({
 			timeoutMillis: getEnv().OTEL_EXPORTER_OTLP_LOGS_TIMEOUT,
 			...config,

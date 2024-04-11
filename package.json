@@ -1,10 +1,10 @@
 {
-	"name": "@askluna/exporter-logs-otlp-http-wintercg",
-	"version": "0.48.2",
+	"name": "@askluna/exporter-logs-otlp-http-workers",
+	"version": "0.48.0",
 	"publishConfig": {
 		"access": "public"
 	},
-	"description": "This is a wintercg compatable package of @opentelemetry/exporter-logs-otlp-http",
+	"description": "This is a workers compatable package of @opentelemetry/exporter-logs-otlp-http",
 	"author": "Ask Luna",
 	"homepage": "https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/exporter-logs-otlp-http",
 	"license": "Apache-2.0",
@@ -16,10 +16,10 @@
 	"browser": "dist/index.js",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/open-telemetry/opentelemetry-js.git"
+		"url": "git+https://github.com/askluna/exporter-logs-otlp-http-workers.git"
 	},
 	"bugs": {
-		"url": "https://github.com/open-telemetry/opentelemetry-js/issues"
+		"url": "https://github.com/askluna/exporter-logs-otlp-http-workers/issues"
 	},
 	"engines": {
 		"node": ">=20"
@@ -36,13 +36,12 @@
 		"profiling",
 		"logs",
 		"stats",
-		"wintercg"
+		"workers",
+		"cloudflare",
+		"otel",
+		"observability"
 	],
-	"files": [
-		"dist/**/*",
-		"LICENSE",
-		"README.md"
-	],
+	"files": ["dist/**/*", "LICENSE", "README.md"],
 	"sideEffects": false,
 	"devDependencies": {
 		"@askluna/configs": "workspace:*",

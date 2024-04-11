@@ -7,7 +7,7 @@ This module provides a logs-exporter for OTLP (http/json).
 ## Installation
 
 ```bash
-npm install --save @askluna/exporter-logs-otlp-http-wintercg
+npm install --save @askluna/exporter-logs-otlp-http-workers
 ```
 
 ## Use

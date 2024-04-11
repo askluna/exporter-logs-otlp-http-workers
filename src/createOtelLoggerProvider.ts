@@ -2,15 +2,15 @@ import { Resource } from '@opentelemetry/resources';
 import { LoggerProvider, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
-import { type OTLPLogExporterConfigWinterCG } from '~~/OTLPLogExporterWinterCG';
-import { OTLPLogExporterWinterCG } from '~~/OTLPLogExporterWinterCG';
+import { type OTLPLogExporterConfigworkers } from '~~/OTLPLogExporterWorkers';
+import { OTLPLogExporterWorkers } from '~~/OTLPLogExporterWorkers';
 
 export type CreateOtelLoggerProviderParams = {
 	serviceIdentifier: {
 		name: string;
 		namespace: string;
 	};
-	exportOptions: OTLPLogExporterConfigWinterCG;
+	exportOptions: OTLPLogExporterConfigworkers;
 };
 
 export const createOtelLoggerProvider = (params: CreateOtelLoggerProviderParams): LoggerProvider | null => {
@@ -22,9 +22,9 @@ export const createOtelLoggerProvider = (params: CreateOtelLoggerProviderParams)
 
 		const collectorOptions = {
 			...params.exportOptions,
-		} satisfies OTLPLogExporterConfigWinterCG;
+		} satisfies OTLPLogExporterConfigworkers;
 
-		const logExporter = new OTLPLogExporterWinterCG(collectorOptions);
+		const logExporter = new OTLPLogExporterWorkers(collectorOptions);
 
 		const loggerProvider = new LoggerProvider({
 			resource: resource,
