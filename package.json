@@ -1,0 +1,68 @@
+{
+	"name": "@askluna/exporter-logs-otlp-http-wintercg",
+	"version": "0.48.2",
+	"publishConfig": {
+		"access": "public"
+	},
+	"description": "This is a wintercg compatable package of @opentelemetry/exporter-logs-otlp-http",
+	"author": "Ask Luna",
+	"homepage": "https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/exporter-logs-otlp-http",
+	"license": "Apache-2.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"module": "dist/index.js",
+	"esnext": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"browser": "dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/open-telemetry/opentelemetry-js.git"
+	},
+	"bugs": {
+		"url": "https://github.com/open-telemetry/opentelemetry-js/issues"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"prepublishOnly": "pnpm build",
+		"build": "vite build",
+		"build:watch": "vite build --watch"
+	},
+	"keywords": [
+		"opentelemetry",
+		"nodejs",
+		"tracing",
+		"profiling",
+		"logs",
+		"stats",
+		"wintercg"
+	],
+	"files": [
+		"dist/**/*",
+		"LICENSE",
+		"README.md"
+	],
+	"sideEffects": false,
+	"devDependencies": {
+		"@askluna/configs": "workspace:*",
+		"@askluna/eslint-config": "workspace:*",
+		"@types/node": "^20.12.7",
+		"tsup": "^8.0.2",
+		"typescript": "5.4.5",
+		"vite": "^5.2.8",
+		"vite-plugin-dts": "^3.8.1",
+		"vite-tsconfig-paths": "^4.3.2"
+	},
+	"dependencies": {
+		"@opentelemetry/api": "1.8.0",
+		"@opentelemetry/api-logs": "0.50.0",
+		"@opentelemetry/core": "1.23.0",
+		"@opentelemetry/otlp-exporter-base": "^0.50.0",
+		"@opentelemetry/otlp-transformer": "^0.50.0",
+		"@opentelemetry/resources": "1.23.0",
+		"@opentelemetry/sdk-logs": "0.50.0",
+		"@opentelemetry/sdk-trace-base": "1.23.0",
+		"@opentelemetry/semantic-conventions": "1.23.0"
+	}
+}

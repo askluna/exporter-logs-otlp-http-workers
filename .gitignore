@@ -1,0 +1,44 @@
+# node
+node_modules
+**/dist/**
+*.map
+
+
+
+# package
+.yarn/cache
+.yarn/install-state.gz
+.next/**
+**/.turbo
+dist
+
+# environment
+.env
+**/tempenv.ts
+.DS_Store
+
+# build
+build/**
+dist/**
+
+# obsidian
+./main.js
+data.json
+!apps/askluna-obsidian/test-vault/.obsidian/plugins/**/*
+apps/askluna-obsidian/test-vault/.obsidian/plugins/ask-luna/**/*
+apps/askluna-obsidian/test-vault/.obsidian/workspace.json
+apps/askluna-obsidian/yarn-error.log
+./style.css
+styles.css
+
+# data
+**/milvus-docker/volumes
+
+# misc
+
+*.cpuprofile
+.wrangler
+*.vars
+tempenv.ts
+**/.op
+*.heapprofile

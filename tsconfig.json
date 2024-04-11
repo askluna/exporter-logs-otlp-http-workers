@@ -1,0 +1,24 @@
+{
+  "extends": "@askluna/configs/tsconfig.base.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"rootDir": ".",
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": false,
+    "declarationMap": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "Bundler",
+		"outDir": "./dist",
+		"composite": false,
+    "allowImportingTsExtensions": false,
+    "incremental": false,
+    "paths": {
+      "~~/*": ["./src/*"],
+    }
+	},
+  "include": ["src/**/*"]
+}
