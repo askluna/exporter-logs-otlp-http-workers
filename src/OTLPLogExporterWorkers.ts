@@ -37,7 +37,7 @@ export interface OTLPLogExporterWorkersConfig extends OTLPExporterNodeConfigBase
  * Collector Metric Exporter abstract base class
  */
 export class OTLPLogExporterWorkers
-	extends OTLPExporterBase<OTLPLogExporterWorkersConfig, ReadableLogRecord, IExportLogsServiceRequest>
+	extends OTLPExporterBase<OTLPLogExporterWorkersConfig, ReadableLogRecord>
 	implements LogRecordExporter
 {
 	DEFAULT_HEADERS: Record<string, string> = {};
